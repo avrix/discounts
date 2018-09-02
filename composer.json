@@ -1,0 +1,22 @@
+{
+  "name": "discounts",
+  "description": "Discounts service",
+  "keywords": ["discounts", "order", "php"],
+  "homepage": "https://github.com/avrix/discounts",
+  "type": "service",
+  "license": "none",
+  "authors": [
+    {
+      "name": "Nicoleta Avrigeanu",
+      "email": "nico.avrigeanu@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "discounts\\": "src/"
+    }
+  }
+}

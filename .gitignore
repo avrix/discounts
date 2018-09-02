@@ -1,0 +1,8 @@
+# PHPStorm
+/.idea
+
+# Composer
+/.composer
+composer.phar
+composer.lock
+/vendor

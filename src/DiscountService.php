@@ -2,13 +2,9 @@
 
 namespace discounts;
 
-use discounts\DiscountConditions\Decorators\MinimumIdenticalItems;
-use discounts\DiscountConditions\Decorators\MinimumItems;
-use discounts\DiscountConditions\Switches;
-use discounts\DiscountConditions\Tools;
-use discounts\DiscountConditions\CustomerRevenue;
-use discounts\Discounts\CustomerDiscount;
-use discounts\Discounts\Discount;
+use discounts\Discounts\CustomerRevenue;
+use discounts\Discounts\MinimumItemsTools;
+use discounts\Discounts\MinimumIdenticalSwitches;
 
 /**
  * Process customer order and determine relevant discounts.
@@ -17,7 +13,6 @@ use discounts\Discounts\Discount;
  */
 class DiscountService
 {
-
     /**
      * Process order and get discounts.
      *
@@ -41,47 +36,13 @@ class DiscountService
     private function getDiscounts(Order $order): array
     {
         $discounts = [];
-
-        $customerRevenueCondition = new CustomerRevenue($order->getCustomer(), 1000);
-
-        if ($customerRevenueCondition->isFulfilled()) {
-            $discounts[] = (new Discount($order))->percentOffOrder(10);
-        }
-
-        $switchesCondition = new MinimumIdenticalItems(new Switches($order->getItems()), 5);
-        if ($switchesCondition->isFulfilled()) {
-            foreach ($switchesCondition->getItemsHavingConditionFulfilled() as $item)
-                $discounts[] = (new Discount($order))->itemsForFree($item->id, 1);
-        }
-
-        $toolsCondition = new MinimumItems(new Tools($order->getItems()), 2);
-        if ($toolsCondition->isFulfilled()) {
-            $matchedItems = $toolsCondition->getItemsHavingConditionFulfilled();
-
-            $discounts[] = (new Discount($order))->itemsForFree($this->getCheapestItem($matchedItems), 1);
-        }
+        $discounts[] = (new CustomerRevenue($order->getCustomer(), 1000))->getDiscounts();
+        $discounts[] = (new MinimumIdenticalSwitches($order->getItems(), 5))->getDiscounts();
+        $discounts[] = (new MinimumItemsTools($order->getItems(), 2))->getDiscounts();
 
         return $this->getDiscountResponse($discounts, $order);
     }
 
-    /**
-     * Get id of item with the lowest price.
-     *
-     * @param $items
-     * @return int
-     */
-    private function getCheapestItem($items)
-    {
-        $list = [];
-        foreach ($items as $item) {
-            $list[$item->id] = $item->price;
-        }
-
-        asort($list);
-        reset($list);
-
-        return key($list);
-    }
 
     /**
      * Discount response wrapper.
@@ -95,7 +56,7 @@ class DiscountService
         return [
             'order_id' => $order->getId(),
             'customer_id' => $order->getCustomer()->getId(),
-            'discounts' => $discounts
+            'discounts' => array_filter($discounts)
         ];
     }
 }

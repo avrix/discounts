@@ -9,6 +9,8 @@
 namespace {
     require __DIR__ . '/../vendor/autoload.php';
 
+    $app = new Silly\Application();
+
     use discounts\DiscountService;
 
     $order = file_get_contents(__DIR__ .'/../data/order3.json');

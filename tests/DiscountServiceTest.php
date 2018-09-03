@@ -1,11 +1,4 @@
 <?php
-/**
- * This file is part of StaffCloud.
- *
- * @copyright  Copyright (c) 2015 and Onwards, Smartbridge AG <info@smartbridge.ch>. All rights reserved.
- * @license    Proprietary/Closed Source
- * @see        http://www.staff.cloud
- */
 
 namespace discounts\tests;
 

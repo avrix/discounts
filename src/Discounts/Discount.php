@@ -2,36 +2,30 @@
 
 namespace discounts\Discounts;
 
+use discounts\DiscountConditions\ConditionInterface;
 use discounts\Order;
 
 /**
  * Compute discount data.
  */
-class Discount
+abstract class Discount
 {
 
     /**
-     * @var Order
+     * @var ConditionInterface
      */
-    private $order;
+    protected $discountCondition;
 
     /**
-     * Discount constructor.
-     *
-     * @param Order $order
+     * @return array
      */
-    public function __construct(Order $order)
-    {
-        $this->order = $order;
-
-        return $this;
-    }
+    public abstract function getDiscounts(): array;
 
     /**
      * @param int $percent
      * @return array
      */
-    public function percentOffOrder(int $percent)
+    public function getPercentOffOrder(int $percent): array
     {
         $discountValue = ($percent / 100) * $this->order->getTotal();
 
@@ -48,9 +42,10 @@ class Discount
     /**
      * @param string $itemId
      * @param int $quantity
+     *
      * @return array
      */
-    public function itemsForFree(string $itemId, int $quantity)
+    public function getItemsForFree(string $itemId, int $quantity): array
     {
         $discountData = [
             'discount_type' => 'items_for_free',

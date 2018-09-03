@@ -1,6 +1,6 @@
 <?php
 
-namespace discounts;
+namespace discounts\Discounts;
 
 use discounts\Order;
 

@@ -11,7 +11,7 @@ namespace {
 
     use discounts\DiscountService;
 
-    $order = file_get_contents(__DIR__ .'/../data/order2.json');
+    $order = file_get_contents(__DIR__ .'/../data/order3.json');
 
     $discountService = new DiscountService();
     $result = $discountService->processOrder($order);

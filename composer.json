@@ -12,11 +12,20 @@
     }
   ],
   "require": {
-    "php": ">=7.1"
+    "php": ">=7.1",
+    "symfony/dependency-injection": "^4.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7|^6.0"
   },
   "autoload": {
     "psr-4": {
       "discounts\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "discounts\\tests\\": "tests/"
     }
   }
 }

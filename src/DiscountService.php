@@ -8,6 +8,7 @@ use discounts\DiscountConditions\Switches;
 use discounts\DiscountConditions\Tools;
 use discounts\DiscountConditions\CustomerRevenue;
 use discounts\Discounts\CustomerDiscount;
+use discounts\Discounts\Discount;
 
 /**
  * Process customer order and determine relevant discounts.

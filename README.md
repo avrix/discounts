@@ -22,3 +22,9 @@ $ composer require discounts
 
     var_dump($result);
 ```
+
+## Unit tests
+Run unit tests from root directory
+``` bash
+$ phpunit tests/DiscountServiceTest
+```

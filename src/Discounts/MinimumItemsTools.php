@@ -2,33 +2,48 @@
 
 namespace discounts\Discounts;
 
-
 use discounts\DiscountConditions\Decorators\MinimumItems;
 use discounts\DiscountConditions\Tools;
 use discounts\Items\ItemList;
+use discounts\Order;
 
+/**
+ * Discount rule implementation.
+ * Every order having a minimum number of items
+ * from category Tools gets the cheapest for free.
+ */
 class MinimumItemsTools extends Discount
 {
+    /**
+     * Minimum items of category tools.
+     */
+    const MINIMUM_NUMBER = 2;
+
+    /**
+     * Free items offered at discount.
+     */
+    const FREE_ITEMS = 1;
 
     /**
      * @var MinimumItems
      */
-    private $discountCondition;
+    protected $discountCondition;
 
     /**
      * MinimumItemsTools constructor.
      *
-     * @param ItemList $items
-     * @param $minimumCount
+     * @param Order $order
      */
-    public function __construct(ItemList $items, $minimumCount)
+    public function __construct(Order $order)
     {
-        $toolsCondition = new Tools($items);
+        $toolsCondition = new Tools($order->getItems());
 
-        $this->discountCondition = new MinimumItems($toolsCondition, $minimumCount);
+        $this->discountCondition = new MinimumItems($toolsCondition, self::MINIMUM_NUMBER);
     }
 
     /**
+     * Compute discounts for order.
+     *
      * @return array
      */
     public function getDiscounts(): array
@@ -38,7 +53,7 @@ class MinimumItemsTools extends Discount
         if ($this->discountCondition->isFulfilled()) {
             $matchedItems = $this->discountCondition->getItemsHavingConditionFulfilled();
 
-            $discounts[] = $this->getItemsForFree($this->getCheapestItem($matchedItems), 1);
+            $discounts[] = $this->getItemsForFree($this->getCheapestItem($matchedItems), self::FREE_ITEMS);
         }
 
         return $discounts;
@@ -48,6 +63,7 @@ class MinimumItemsTools extends Discount
      * Get id of item with the lowest price.
      *
      * @param $items
+     *
      * @return int
      */
     private function getCheapestItem($items)

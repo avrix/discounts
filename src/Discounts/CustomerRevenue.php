@@ -2,31 +2,51 @@
 
 namespace discounts\Discounts;
 
-use discounts\Customer;
 use discounts\DiscountConditions\CustomerRevenue as CustomerRevenueCondition;
+use discounts\Order;
 
+/**
+ * Discount rule implementation.
+ * Every customer with a revenue > 1000 gets a percent off his order value.
+ */
 class CustomerRevenue extends Discount
 {
+    /**
+     * Minimum revenue value to get the discount.
+     */
+    const CUSTOMER_REVENUE_LIMIT = 1000;
+
+    /**
+     * Percent value offered at discount.
+     */
     const PERCENT_DISCOUNT_VALUE = 10;
 
     /**
      * @var CustomerRevenueCondition
      */
-    private $customerRevenueCondition;
+    protected $discountCondition;
+
+    /**
+     * Holder for order total value.
+     *
+     * @var float
+     */
+    protected $orderTotal;
 
     /**
      * CustomerRevenue constructor.
      *
-     * @param Customer $customer
-     * @param int $minimumCount
+     * @param Order $order
      */
-    public function __construct(Customer $customer, int $minimumCount)
+    public function __construct(Order $order)
     {
-        $this->customerRevenueCondition = new CustomerRevenueCondition($customer, $minimumCount);
+        $customer = $order->getCustomer();
+        $this->orderTotal = $order->getTotal();
+        $this->discountCondition = new CustomerRevenueCondition($customer, self::CUSTOMER_REVENUE_LIMIT);
     }
 
     /**
-     * Get discounts data.
+     * Compute discounts for order.
      *
      * @return array
      */
@@ -34,8 +54,10 @@ class CustomerRevenue extends Discount
     {
         $discounts = [];
 
-        if ($this->customerRevenueCondition->isFulfilled()) {
-            return $this->getPercentOffOrder(self::PERCENT_DISCOUNT_VALUE);
+        if ($this->discountCondition->isFulfilled()) {
+            $discounts[] = $this->getPercentOffOrder(self::PERCENT_DISCOUNT_VALUE, $this->orderTotal);
         }
+
+        return $discounts;
     }
 }

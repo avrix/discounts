@@ -36,9 +36,9 @@ class DiscountService
     private function getDiscounts(Order $order): array
     {
         $discounts = [];
-        $discounts[] = (new CustomerRevenue($order->getCustomer(), 1000))->getDiscounts();
-        $discounts[] = (new MinimumIdenticalSwitches($order->getItems(), 5))->getDiscounts();
-        $discounts[] = (new MinimumItemsTools($order->getItems(), 2))->getDiscounts();
+        $discounts = array_merge($discounts, (new CustomerRevenue($order))->getDiscounts());
+        $discounts = array_merge($discounts, (new MinimumIdenticalSwitches($order))->getDiscounts());
+        $discounts = array_merge($discounts, (new MinimumItemsTools($order))->getDiscounts());
 
         return $this->getDiscountResponse($discounts, $order);
     }

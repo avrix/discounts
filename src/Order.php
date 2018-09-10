@@ -38,6 +38,8 @@ class Order
      * Order constructor.
      *
      * @param array $data
+     *
+     * @throws \Exception
      */
     public function __construct(array $data)
     {
@@ -89,7 +91,7 @@ class Order
     }
 
     /**
-     * Get one random item of given category from item list.
+     * Get first item of given category from item list.
      *
      * @param int $categoryId
      *

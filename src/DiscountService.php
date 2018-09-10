@@ -5,6 +5,7 @@ namespace discounts;
 use discounts\Discounts\CustomerRevenue;
 use discounts\Discounts\MinimumItemsTools;
 use discounts\Discounts\MinimumIdenticalSwitches;
+use Exception;
 
 /**
  * Process customer order and determine relevant discounts.
@@ -21,8 +22,12 @@ class DiscountService
      */
     public function processOrder(string $orderData): array
     {
-        $order = new Order(json_decode($orderData, true));
-        $discounts = $this->getDiscounts($order);
+        try {
+            $order = new Order(json_decode($orderData, true));
+            $discounts = $this->getDiscounts($order);
+        } catch (Exception $exception){
+            echo $exception->getMessage();
+        }
 
         return $discounts;
     }

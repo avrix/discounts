@@ -2,11 +2,16 @@
 
 namespace discounts\tests;
 
+use discounts\Customer;
+use discounts\Items\ItemList;
+use discounts\Items\Switches as SwitchesItems;
+use discounts\Items\Tools as ToolsItems;
 use discounts\Order;
 use discounts\DiscountConditions\Switches;
 use discounts\DiscountConditions\Tools;
 use PHPUnit\Framework\TestCase;
 use discounts\DiscountService;
+use Exception;
 /**
  * Class DiscountServiceTest.
  */
@@ -22,31 +27,92 @@ class DiscountServiceTest extends TestCase
         $this->orders[2] = json_decode(file_get_contents(__DIR__ .'/../data/order2.json'), true);
         // tools mix
         $this->orders[3] = json_decode(file_get_contents(__DIR__ .'/../data/order3.json'), true);
+        // 2 switches, 10 tools
+        $this->orders[4] = json_decode(file_get_contents(__DIR__ .'/../data/order4.json'), true);
     }
 
+    #region --- Test Customer component ---
+    public function testCustomerDoesNotExist()
+    {
+        $this->expectException(Exception::class);
+
+        $customer = new Customer(999);
+    }
+
+    public function testCustomerIsCorrect()
+    {
+        $customerId = 1;
+        $customer = new Customer(1);
+
+        $this->assertEquals($customerId, $customer->getId());
+    }
+    #endregion
+
+    #region --- Test ItemList component ---
+    public function testItemListHasCorrectItems()
+    {
+        $itemList = new ItemList($this->orders[4]['items']);
+        $items = $itemList->getItems();
+
+        $this->assertEquals(count($this->orders[4]['items']), count($items));
+        $this->assertInstanceOf(ToolsItems::class, $items[0]);
+        $this->assertInstanceOf(SwitchesItems::class, $items[1]);
+    }
+
+    #endregion
+
+    #region --- Test Order component ---
+    public function testOrderHasCorrectCustomer()
+    {
+        $order = new Order($this->orders[3]);
+
+        $this->assertInstanceOf(Customer::class, $order->getCustomer());
+        $this->assertEquals($this->orders[3]['customer-id'], $order->getCustomer()->getId());
+    }
+
+    public function testGetItemForCategoryHasCorrectCategory()
+    {
+        $order = new Order($this->orders[4]);
+
+        $item = $order->getItemForCategory(SwitchesItems::ITEM_CATEGORY);
+
+        $this->assertInstanceOf(SwitchesItems::class, $item);
+    }
+    #endregion
     #region --- Discount Conditions ---
 
-    public function testSwitchesCondition()
+    public function testOrderHasSwitches()
     {
-        $orderItems = (new Order($this->orders[1]))->getItems();
+        $orderItems = (new Order($this->orders[4]))->getItems();
         $switches = new Switches($orderItems);
-        $this->assertEquals(true, $switches->isFulfilled());
 
-        $orderItems = (new Order($this->orders[3]))->getItems();
-        $switches = new Switches($orderItems);
-        $this->assertEquals(false, $switches->isFulfilled());
+        $this->assertTrue($switches->isFulfilled());
     }
 
-    public function testToolsCondition()
+    public function testOrderDoesntHaveSwitches()
+    {
+        $orderItems = (new Order($this->orders[3]))->getItems();
+        $switches = new Switches($orderItems);
+
+        $this->assertFalse($switches->isFulfilled());
+    }
+
+    public function testOrderHasTools()
+    {
+        $orderItems = (new Order($this->orders[4]))->getItems();
+        $tools = new Tools($orderItems);
+
+        $this->assertTrue($tools->isFulfilled());
+    }
+
+    public function testOrderDoesntHaveTools()
     {
         $orderItems = (new Order($this->orders[1]))->getItems();
         $tools = new Tools($orderItems);
-        $this->assertEquals(false, $tools->isFulfilled());
 
-        $orderItems = (new Order($this->orders[3]))->getItems();
-        $tools = new Tools($orderItems);
-        $this->assertEquals(true, $tools->isFulfilled());
+        $this->assertFalse($tools->isFulfilled());
     }
+
 
     #endregion
 

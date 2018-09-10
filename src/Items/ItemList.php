@@ -2,6 +2,7 @@
 
 namespace discounts\Items;
 
+use Exception;
 
 class ItemList
 {
@@ -23,6 +24,8 @@ class ItemList
      * ItemList constructor.
      *
      * @param array $items
+     *
+     * @throws Exception
      */
     public function __construct(array $items)
     {
@@ -38,7 +41,7 @@ class ItemList
                     break;
 
                 default:
-                    $this->items[] = new Item($item);
+                    throw new Exception('Undefined item category');
             }
         }
     }
@@ -59,6 +62,8 @@ class ItemList
      * @param array $item
      *
      * @return int|null
+     *
+     * @throws Exception
      */
     private function identifyItemCategory(array $item): ?int
     {
@@ -66,7 +71,13 @@ class ItemList
             $this->availableProducts = $this->getAvailableProducts();
         }
 
-        return array_key_exists($item['product-id'], $this->availableProducts) ? $this->availableProducts[$item['product-id']] : null;
+        if (!array_key_exists('product-id', $item)) {
+            throw new Exception('Item has undefined property');
+        }
+
+        $productId = $item['product-id'];
+
+        return array_key_exists($productId, $this->availableProducts) ? $this->availableProducts[$productId] : null;
     }
 
     /**

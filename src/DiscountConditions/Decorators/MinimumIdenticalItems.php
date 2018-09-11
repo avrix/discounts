@@ -13,12 +13,10 @@ use discounts\DiscountConditions\ConditionInterface;
 
 class MinimumIdenticalItems extends ConditionDecorator
 {
-
     /**
      * @var Condition
      */
     private $itemTypeCondition;
-
 
     /**
      * @var int
@@ -36,7 +34,7 @@ class MinimumIdenticalItems extends ConditionDecorator
      * MinimumIdenticalItems constructor.
      *
      * @param ConditionInterface $condition
-     * @param int $minimumCount
+     * @param int                $minimumCount
      */
     public function __construct(ConditionInterface $condition, int $minimumCount)
     {
@@ -45,7 +43,6 @@ class MinimumIdenticalItems extends ConditionDecorator
 
         $this->applyCondition();
     }
-
 
     /**
      * @return bool
@@ -76,7 +73,7 @@ class MinimumIdenticalItems extends ConditionDecorator
     {
         $items = $this->itemTypeCondition->getItems();
 
-        foreach ($items  as $item) {
+        foreach ($items as $item) {
             if ($item->quantity >= $this->minimumCount) {
                 $this->matchingItems[] = $item;
             }

@@ -7,11 +7,10 @@ use discounts\Items\ItemList;
 use discounts\Items\Switches as SwitchesItems;
 use discounts\Items\Tools as ToolsItems;
 use discounts\Order;
-use discounts\DiscountConditions\Switches;
-use discounts\DiscountConditions\Tools;
 use PHPUnit\Framework\TestCase;
 use discounts\DiscountService;
 use Exception;
+
 /**
  * Class DiscountServiceTest.
  */
@@ -22,16 +21,15 @@ class DiscountServiceTest extends TestCase
     protected function setUp()
     {
         // 10 switches
-        $this->orders[1] = json_decode(file_get_contents(__DIR__ .'/../data/order1.json'), true);
+        $this->orders[1] = json_decode(file_get_contents(__DIR__ . '/../data/order1.json'), true);
         // 5 switches, customer revenue > 1000
-        $this->orders[2] = json_decode(file_get_contents(__DIR__ .'/../data/order2.json'), true);
+        $this->orders[2] = json_decode(file_get_contents(__DIR__ . '/../data/order2.json'), true);
         // tools mix
-        $this->orders[3] = json_decode(file_get_contents(__DIR__ .'/../data/order3.json'), true);
+        $this->orders[3] = json_decode(file_get_contents(__DIR__ . '/../data/order3.json'), true);
         // 2 switches, 10 tools
-        $this->orders[4] = json_decode(file_get_contents(__DIR__ .'/../data/order4.json'), true);
+        $this->orders[4] = json_decode(file_get_contents(__DIR__ . '/../data/order4.json'), true);
     }
 
-    #region --- Test Customer component ---
     public function testCustomerDoesNotExist()
     {
         $this->expectException(Exception::class);
@@ -46,9 +44,7 @@ class DiscountServiceTest extends TestCase
 
         $this->assertEquals($customerId, $customer->getId());
     }
-    #endregion
 
-    #region --- Test ItemList component ---
     public function testItemListHasCorrectItems()
     {
         $itemList = new ItemList($this->orders[4]['items']);
@@ -59,9 +55,6 @@ class DiscountServiceTest extends TestCase
         $this->assertInstanceOf(SwitchesItems::class, $items[1]);
     }
 
-    #endregion
-
-    #region --- Test Order component ---
     public function testOrderHasCorrectCustomer()
     {
         $order = new Order($this->orders[3]);
@@ -78,60 +71,23 @@ class DiscountServiceTest extends TestCase
 
         $this->assertInstanceOf(SwitchesItems::class, $item);
     }
-    #endregion
-    #region --- Discount Conditions ---
 
-    public function testOrderHasSwitches()
+    public function testCustomerRevenueConditionHasCorrectDiscount()
     {
-        $orderItems = (new Order($this->orders[4]))->getItems();
-        $switches = new Switches($orderItems);
-
-        $this->assertTrue($switches->isFulfilled());
-    }
-
-    public function testOrderDoesntHaveSwitches()
-    {
-        $orderItems = (new Order($this->orders[3]))->getItems();
-        $switches = new Switches($orderItems);
-
-        $this->assertFalse($switches->isFulfilled());
-    }
-
-    public function testOrderHasTools()
-    {
-        $orderItems = (new Order($this->orders[4]))->getItems();
-        $tools = new Tools($orderItems);
-
-        $this->assertTrue($tools->isFulfilled());
-    }
-
-    public function testOrderDoesntHaveTools()
-    {
-        $orderItems = (new Order($this->orders[1]))->getItems();
-        $tools = new Tools($orderItems);
-
-        $this->assertFalse($tools->isFulfilled());
-    }
-
-
-    #endregion
-
-    public function testCustomerRevenueOrderHasPercentOfOrderDiscount()
-    {
-        $order = file_get_contents(__DIR__ .'/../data/order2.json');
+        $order = file_get_contents(__DIR__ . '/../data/order2.json');
         $discounts = [
-            'order_id' => '2',
+            'order_id'    => '2',
             'customer_id' => '2',
-            'discounts' => [
+            'discounts'   => [
                 [
-                    'discount_type' => 'percent_off_order',
+                    'discount_type'  => 'percent_off_order',
                     'discount_value' => ['quantity' => 1, 'value' => 2.495],
                 ],
                 [
-                    'discount_type' => 'items_for_free',
+                    'discount_type'  => 'items_for_free',
                     'discount_value' => ['quantity' => 1, 'value' => 'B102'],
                 ],
-            ]
+            ],
         ];
 
         $discountService = new DiscountService();
@@ -142,10 +98,10 @@ class DiscountServiceTest extends TestCase
 
     public function testFiveIdenticalSwitchesOrderHasItemsForFreeDiscount()
     {
-        $order = file_get_contents(__DIR__ .'/../data/order1.json');
+        $order = file_get_contents(__DIR__ . '/../data/order1.json');
         $discounts = [
             [
-                'discount_type' => 'items_for_free',
+                'discount_type'  => 'items_for_free',
                 'discount_value' => ['quantity' => 1, 'value' => 'B102'],
             ],
         ];
@@ -156,13 +112,12 @@ class DiscountServiceTest extends TestCase
         $this->assertEquals($result['discounts'], $discounts);
     }
 
-
     public function testTwoOrMoreToolsOrderHasItemsForFreeDiscount()
     {
-        $order = file_get_contents(__DIR__ .'/../data/order3.json');
+        $order = file_get_contents(__DIR__ . '/../data/order3.json');
         $discounts = [
             [
-                'discount_type' => 'items_for_free',
+                'discount_type'  => 'items_for_free',
                 'discount_value' => ['quantity' => 1, 'value' => 'A101'],
             ],
         ];
